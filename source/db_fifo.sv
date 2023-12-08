@@ -22,9 +22,7 @@ logic [7:0] ntx_data;
 logic i, j;
 always_ff @ (posedge clk, negedge n_rst) begin //updating ram and data outputs
     if(~n_rst) begin
-        for(j=0; j < 64; j++) begin
-                ram[j] = 8'b0;
-            end
+        ram <= '{default: '0 };
         tx_packet_data <= 8'b0;
         rx_data <= 8'b0;
     end else begin
@@ -52,22 +50,20 @@ always_comb begin
     ntx_data = tx_packet_data;
     nrx_data = rx_data;
     if(clear || flush) begin    //clearing data
-            for(i=0; i < 64; i++) begin
-                nram[i] = 8'b0;
-            end
+        nram = '{default: '0 };
     end
     else begin
-        if(write_en && (buff_occ != 7'd64)) begin //writing to register file
-            nram[write_ptr] = write_data;
+        if(write_en) begin //writing to register file
+            nram[write_ptr-1] = write_data;
         end
-        if(read_en && buff_occ != 0) begin //reading data and popping it out of the file
+        if(read_en) begin //reading data and popping it out of the file
             if(tx_en) begin
-                ntx_data = ram[read_ptr];
-                nram[read_ptr] = 8'b0;
+                ntx_data = ram[read_ptr-1];
+                nram[read_ptr-1] = 8'b0;
             end
-            else if(get_rx_data) begin
-                nrx_data = ram[read_ptr];
-                nram[read_ptr] = 8'b0;
+            else if(rx_en) begin
+                nrx_data = ram[read_ptr-1];
+                nram[read_ptr-1] = 8'b0;
             end
         end
     end

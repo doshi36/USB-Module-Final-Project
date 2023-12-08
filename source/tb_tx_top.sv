@@ -73,51 +73,52 @@ module tb_tx_top();
             input logic expected_dplus_out;
             input logic expected_dminus_out;
             input string test_case;
+            input string test_part;
     begin
 
         if(expected_error == tb_tx_error)
         begin
-            $info("Test Case #%0d had a correct error output: %s", tb_test_case_num, tb_test_case);
+            $info("Test Case #%0d: %s had a correct error output in %s", tb_test_case_num, tb_test_case, test_part);
         end
         else
         begin
-            $error("Test Case #%0d had an incorrect error output", tb_test_case_num);
+            $error("Test Case #%0d: %s had an incorrect error output in %s", tb_test_case_num, tb_test_case, test_part);
         end
 
         if(expected_transfer_active == tb_tx_transfer_active)
         begin
-            $info("Test Case #%0d had a correct tx_transfer_active output", tb_test_case_num);
+            $info("Test Case #%0d: %s had a correct tx_transfer_active output in %s", tb_test_case_num, tb_test_case, test_part);
         end
         else
         begin
-            $error("Test Case #%0d had an incorrect tx_transfer_active output", tb_test_case_num);
+            $error("Test Case #%0d: %s had an ioncorrect tx_transfer_active output in %s", tb_test_case_num, tb_test_case, test_part);
         end
 
         if(expected_get_tx_data == tb_get_tx_data)
         begin
-            $info("Test Case #%0d had a correct get_tx_data output", tb_test_case_num);
+            $info("Test Case #%0d: %s had a correct get_tx_data output in %s", tb_test_case_num, tb_test_case, test_part);
         end
         else
         begin
-            $error("Test Case #%0d had an incorrect get_tx_data output", tb_test_case_num);
+            $error("Test Case #%0d: %s had an incorrect get_tx_data output in %s", tb_test_case_num, tb_test_case, test_part);
         end
 
         if(expected_dplus_out == tb_dplus_out)
         begin
-            $info("Test Case #%0d had a correct dplus_out output", tb_test_case_num);
+            $info("Test Case #%0d: %s had a correct dplus_out output in %s", tb_test_case_num, tb_test_case, test_part);
         end
         else
         begin
-            $error("Test Case #%0d had an incorrect dplus_out output", tb_test_case_num);
+            $error("Test Case #%0d: %s had an incorrect dplus_out output in %s", tb_test_case_num, tb_test_case, test_part);
         end
 
         if(expected_dminus_out == tb_dminus_out)
         begin
-            $info("Test Case #%0d had a correct dminus_out output", tb_test_case_num);
+            $info("Test Case #%0d: %s had a correct dminus output in %s", tb_test_case_num, tb_test_case, test_part);
         end
         else
         begin
-            $error("Test Case #%0d had an incorrect dminus_out output", tb_test_case_num);
+            $error("Test Case #%0d: %s had an incorrect dminus output in %s", tb_test_case_num, tb_test_case, test_part);
         end
     end
     endtask
@@ -145,10 +146,10 @@ module tb_tx_top();
         check_outs(tb_expected_error,tb_expected_transfer_active,
         tb_expected_get_tx_data,
         tb_expected_dplus_out,
-        tb_expected_dminus_out, tb_test_case);
+        tb_expected_dminus_out, tb_test_case, "after reset");
         
         
-
+        //TEST 2
         tb_test_case_num += 1;
         tb_test_case = "ACK Byte";
         tb_expected_error = 1'b0;
@@ -159,11 +160,207 @@ module tb_tx_top();
 
         reset_dut();
         @(negedge tb_clk);
-         
+        tb_tx_packet = 3'b010; //ACK Packet Code
+        #(CLK_PERIOD * 2); //Beginning of sync byte
+        
         check_outs(tb_expected_error,tb_expected_transfer_active,
         tb_expected_get_tx_data,
         tb_expected_dplus_out,
-        tb_expected_dminus_out, tb_test_case);
+        tb_expected_dminus_out, tb_test_case, "Start of SYNC");
 
-    end
+        #(CLK_PERIOD * 128);
+        tb_tx_packet = 3'b0; //Return to IDLE state
+        #(CLK_PERIOD * 16);
+
+        //Expected Vals at EOP
+        tb_expected_error = 1'b0;
+        tb_expected_transfer_active = 1'b1;
+        tb_expected_get_tx_data = 1'b0;
+        tb_expected_dplus_out = 1'b0;
+        tb_expected_dminus_out = 1'b0;
+
+        check_outs(tb_expected_error,tb_expected_transfer_active,
+        tb_expected_get_tx_data,
+        tb_expected_dplus_out,
+        tb_expected_dminus_out, tb_test_case, "EOP of ACK Packet");
+        #(CLK_PERIOD * 8); // Make some space between tests
+
+        //TEST 3
+        tb_test_case_num += 1;
+        tb_test_case = "NAK Byte";
+        tb_expected_error = 1'b0;
+        tb_expected_transfer_active = 1'b1;
+        tb_expected_get_tx_data = 1'b0;
+        tb_expected_dplus_out = 1'b1;
+        tb_expected_dminus_out = 1'b0;
+
+        reset_dut();
+        @(negedge tb_clk);
+        tb_tx_packet = 3'b011;
+        #(CLK_PERIOD * 2); //Beginning of sync byte
+        
+        check_outs(tb_expected_error,tb_expected_transfer_active,
+        tb_expected_get_tx_data,
+        tb_expected_dplus_out,
+        tb_expected_dminus_out, tb_test_case, "Start of SYNC");
+
+        #(CLK_PERIOD * 128);
+        tb_tx_packet = 3'b0; //Return to IDLE state
+        #(CLK_PERIOD * 16);
+
+        //Expected Vals at EOP
+        tb_expected_error = 1'b0;
+        tb_expected_transfer_active = 1'b1;
+        tb_expected_get_tx_data = 1'b0;
+        tb_expected_dplus_out = 1'b0;
+        tb_expected_dminus_out = 1'b0;
+
+        check_outs(tb_expected_error,tb_expected_transfer_active,
+        tb_expected_get_tx_data,
+        tb_expected_dplus_out,
+        tb_expected_dminus_out, tb_test_case, "End of NAK");
+
+        #(CLK_PERIOD * 8); // Make some space between tests
+
+        //TEST 4
+        tb_test_case_num += 1;
+        tb_test_case = "STALL Byte";
+        tb_expected_error = 1'b0;
+        tb_expected_transfer_active = 1'b1;
+        tb_expected_get_tx_data = 1'b0;
+        tb_expected_dplus_out = 1'b1;
+        tb_expected_dminus_out = 1'b0;
+
+        reset_dut();
+        @(negedge tb_clk);
+        tb_tx_packet = 3'b100;
+        #(CLK_PERIOD * 2); //Beginning of sync byte
+
+        check_outs(tb_expected_error,tb_expected_transfer_active,
+        tb_expected_get_tx_data,
+        tb_expected_dplus_out,
+        tb_expected_dminus_out, tb_test_case, "Start of SYNC");
+        
+        #(CLK_PERIOD * 128);
+        tb_tx_packet = 3'b0; //Return to IDLE state
+        #(CLK_PERIOD * 16);
+
+        //Expected Vals at EOP
+        tb_expected_error = 1'b0;
+        tb_expected_transfer_active = 1'b1;
+        tb_expected_get_tx_data = 1'b0;
+        tb_expected_dplus_out = 1'b0;
+        tb_expected_dminus_out = 1'b0;
+
+        check_outs(tb_expected_error,tb_expected_transfer_active,
+        tb_expected_get_tx_data,
+        tb_expected_dplus_out,
+        tb_expected_dminus_out, tb_test_case, "End of STALL");
+        #(CLK_PERIOD * 8);
+
+        //TEST 5
+        tb_test_case_num += 1;
+        tb_test_case = "Small Payload DATA PID";
+        tb_expected_error = 1'b0;
+        tb_expected_transfer_active = 1'b1;
+        tb_expected_get_tx_data = 1'b0;
+        tb_expected_dplus_out = 1'b1;
+        tb_expected_dminus_out = 1'b0;
+        
+        tb_buff_occ = 7'd3;
+
+        reset_dut();
+        @(negedge tb_clk);
+        tb_tx_packet = 3'b001;
+
+        #(CLK_PERIOD * 128);
+        tb_tx_packet_data = 8'b11010011;    //Random data entry
+        for(tb_buff_occ = 3; tb_buff_occ > 0; tb_buff_occ--) begin
+            //buff_occ subtracts during READ_DATA, before shift_en is asserted
+            #(CLK_PERIOD * 64); //Goes once between READ_DATA and HOLD_DATA
+        end
+        check_outs(tb_expected_error,tb_expected_transfer_active,
+        tb_expected_get_tx_data,
+        tb_expected_dplus_out,
+        tb_expected_dminus_out, tb_test_case, "Somewhere in data sending");
+        
+        //TEST 6
+        tb_test_case_num += 1;
+        tb_test_case = "Medium Payload DATA PID";
+        tb_expected_error = 1'b0;
+        tb_expected_transfer_active = 1'b1;
+        tb_expected_get_tx_data = 1'b0;
+        tb_expected_dplus_out = 1'b1;
+        tb_expected_dminus_out = 1'b0;
+        
+        tb_buff_occ = 7'd3;
+
+        reset_dut();
+        @(negedge tb_clk);
+        tb_tx_packet = 3'b001;
+
+        #(CLK_PERIOD * 128);
+        tb_tx_packet_data = 8'b00101100;    //Random data entry
+        for(tb_buff_occ = 20; tb_buff_occ > 0; tb_buff_occ--) begin
+            //buff_occ subtracts during READ_DATA, before shift_en is asserted
+            #(CLK_PERIOD * 64); //Goes once between READ_DATA and HOLD_DATA
+        end
+        check_outs(tb_expected_error,tb_expected_transfer_active,
+        tb_expected_get_tx_data,
+        tb_expected_dplus_out,
+        tb_expected_dminus_out, tb_test_case, "After all data is expended");
+        tb_tx_packet = 3'b000;
+        
+        //TEST 7
+        tb_test_case_num += 1;
+        tb_test_case = "Large Payload DATA PID";
+        tb_expected_error = 1'b0;
+        tb_expected_transfer_active = 1'b1;
+        tb_expected_get_tx_data = 1'b0;
+        tb_expected_dplus_out = 1'b1;
+        tb_expected_dminus_out = 1'b0;
+        
+        tb_buff_occ = 7'd3;
+
+        reset_dut();
+        @(negedge tb_clk);
+        tb_tx_packet = 3'b001;
+
+        #(CLK_PERIOD * 128);
+        tb_tx_packet_data = 8'b00101100;    //Random data entry
+        for(tb_buff_occ = 64; tb_buff_occ > 0; tb_buff_occ--) begin
+            //buff_occ subtracts during READ_DATA, before shift_en is asserted
+            #(CLK_PERIOD * 64); //Goes once between READ_DATA and HOLD_DATA
+        end
+        check_outs(tb_expected_error,tb_expected_transfer_active,
+        tb_expected_get_tx_data,
+        tb_expected_dplus_out,
+        tb_expected_dminus_out, tb_test_case, "After all data is expended");
+        #(CLK_PERIOD * 5);
+        tb_tx_packet = 3'b000;
+
+        //TEST 8
+        tb_test_case_num += 1;
+        tb_test_case = "Invalid Transfer Error";
+        tb_expected_error = 1'b1;
+        tb_expected_transfer_active = 1'b1;
+        tb_expected_get_tx_data = 1'b0;
+        tb_expected_dplus_out = 1'b1;
+        tb_expected_dminus_out = 1'b0;
+
+        tb_buff_occ = 7'd0; //Attempting to read data from empty buffer
+
+        reset_dut();
+        
+        @(negedge tb_clk);
+        tb_tx_packet = 3'b001;
+
+        #(CLK_PERIOD * 124); //2 clk cycles to get to sync, 64 to complete, 56 to get through 7 bits of data
+        check_outs(tb_expected_error,tb_expected_transfer_active,
+        tb_expected_get_tx_data,
+        tb_expected_dplus_out,
+        tb_expected_dminus_out, tb_test_case, "After attempting to read data");
+        #(CLK_PERIOD * 3);
+        reset_dut();
+    end 
 endmodule

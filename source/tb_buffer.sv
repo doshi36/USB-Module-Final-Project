@@ -27,6 +27,8 @@ module tb_buffer();
     wire [7:0] tb_tx_packet_data;
     wire [7:0] tb_rx_data;
 
+    integer i;
+
     integer tb_test_case_num;
 	integer tb_std_test_case;
     string tb_test_case;
@@ -73,8 +75,8 @@ module tb_buffer();
     task send_rx_in;
             input [7:0] rx_data_in;
     begin
-        @(negedge tb_clk);
         tb_rx_packet_data = rx_data_in;
+        @(negedge tb_clk);
         tb_store_rx_data = 1'b1;
         @(negedge tb_clk) //wait clock cycle;
         tb_store_rx_data = 1'b0;
@@ -84,10 +86,10 @@ module tb_buffer();
     task send_tx_in;
             input [7:0] tx_data_in;
     begin
-        @(negedge tb_clk);
         tb_tx_data = tx_data_in;
+        @(negedge tb_clk)
         tb_store_tx_data = 1'b1;
-        @(negedge tb_clk) //wait clock cycle;
+         #(CLK_PERIOD); //wait clock cycle;
         tb_store_tx_data = 1'b0;
     end
     endtask
@@ -96,7 +98,7 @@ module tb_buffer();
     begin
         @(negedge tb_clk);
         tb_get_rx_data = 1'b1;
-        @(negedge tb_clk) //wait clock cycle;
+        #(CLK_PERIOD);
         tb_get_rx_data = 1'b0;
     end
     endtask
@@ -104,7 +106,7 @@ module tb_buffer();
     begin
         @(negedge tb_clk);
         tb_get_tx_data = 1'b1;
-        @(negedge tb_clk) //wait clock cycle;
+        #(CLK_PERIOD) //wait clock cycle;
         tb_get_tx_data = 1'b0;
     end
     endtask
@@ -113,7 +115,7 @@ module tb_buffer();
     begin
         @(negedge tb_clk);
         tb_clear = 1'b1;
-        @(negedge tb_clk);
+        #(CLK_PERIOD);
         tb_clear = 1'b0;
     end
     endtask
@@ -124,33 +126,36 @@ module tb_buffer();
             input logic [6:0] expected_buff_occ;
             input logic [3:0] test_case_num;
             input string test_case;
+            input string test_part;
     begin
 
         if(expected_rx_data == tb_rx_data)
         begin
-            $info("Test Case #%0d had a correct rx_data output: %s", tb_test_case_num, tb_test_case);
+            $info("Test Case #%0d: %s had a correct rx_data output: %s", tb_test_case_num, tb_test_case, test_part);
         end
         else
         begin
-            $error("Test Case #%0d had an incorrect rx_data output", tb_test_case_num);
+            $error("Test Case #%0d: %s had an incorrect rx_data output: %s", tb_test_case_num, tb_test_case, test_part);
         end
 
         if(expected_tx_packet == tb_tx_packet_data)
         begin
-            $info("Test Case #%0d had a correct tx_packet_data output", tb_test_case_num);
+            $info("Test Case #%0d: %s had a correct tx_packet_data output: %s", tb_test_case_num, tb_test_case, test_part);
         end
         else
         begin
-            $error("Test Case #%0d had an incorrect tx_packet_data output", tb_test_case_num);
+            $error("Test Case #%0d: %s had an incorrect tx_packet_data output: %s", tb_test_case_num, tb_test_case, test_part);
+            $info("%0d E:%0d",tb_tx_packet_data, expected_tx_packet);
         end
 
         if(expected_buff_occ == tb_buff_occ)
         begin
-            $info("Test Case #%0d had a correct buff_occ output", tb_test_case_num);
+            $info("Test Case #%0d: %s had a correct buff_occ output: %s", tb_test_case_num, tb_test_case, test_part);
         end
         else
         begin
-            $error("Test Case #%0d had an incorrect buff_occ output", tb_test_case_num);
+            $error("Test Case #%0d: %s had an incorrect buff_occ output: %s", tb_test_case_num, tb_test_case, test_part);
+            $info("%0d E:%0d",tb_buff_occ, expected_buff_occ);
         end
     end
     endtask
@@ -158,38 +163,190 @@ module tb_buffer();
     initial
     begin
         tb_n_rst = 1'b1;
-        tb_clear = 0;
-        tb_flush = 0;
-        tb_store_tx_data = 0;
-        tb_store_rx_data = 0;
+        tb_clear = 1'b0;
+        tb_flush = 1'b0;
+        tb_store_tx_data =  1'b0;
+        tb_store_rx_data = 1'b0;
         tb_tx_data = 8'b0;
         tb_rx_packet_data = 8'b0;
         tb_get_rx_data = 1'b0;
         tb_get_tx_data = 1'b0;
-
+        tb_test_case_num = 0;
         #(0.1);
-
+        
         tb_test_case_num += 1;
+        tb_test_case = "Power on reset";
         tb_expected_rx_data = 8'b0;
         tb_expected_tx_packet = 8'b0;
         tb_expected_buff_occ = 7'b0;
-        tb_test_case = "Power on reset";
         
         tb_n_rst = 1'b0;
         #(CLK_PERIOD * 0.5);
-        check_outs(tb_expected_rx_data, tb_expected_tx_packet, tb_expected_buff_occ, tb_test_case_num, tb_test_case);
+        check_outs(tb_expected_rx_data, tb_expected_tx_packet, tb_expected_buff_occ, tb_test_case_num, tb_test_case, "After resetting");
         
         reset_dut();
 
         tb_test_case_num += 1;
-        tb_expected_rx_data = 8'b11011110;
         tb_expected_tx_packet = 8'b0;
-        tb_expected_buff_occ = 7'b0;
-        tb_test_case = "Send RX data byte";
+        tb_expected_rx_data = 8'b0;
+        tb_test_case = "Send and pull RX data byte";
+        tb_expected_buff_occ = 7'b0000001;
+
         send_rx_in(8'b11011110);
+
         @(negedge tb_clk); //wait for data to enter buffer
-        take_rx_out;
-        @(negedge tb_clk); 
-        check_outs(tb_expected_rx_data, tb_expected_tx_packet, tb_expected_buff_occ, tb_test_case_num, tb_test_case);
+        
+        check_outs(tb_expected_rx_data, tb_expected_tx_packet, tb_expected_buff_occ, tb_test_case_num, tb_test_case, "After writing RX data");
+        take_rx_out();
+        #(CLK_PERIOD);
+        tb_expected_buff_occ = 7'b0;
+        tb_expected_rx_data = 8'b11011110;
+        check_outs(tb_expected_rx_data, tb_expected_tx_packet, tb_expected_buff_occ, tb_test_case_num, tb_test_case, "After pulling RX data");
+        
+        //TEST 3
+        #(CLK_PERIOD);
+        reset_dut();
+        tb_test_case = "Send and pull TX data byte";
+        tb_test_case_num += 1;
+        tb_expected_tx_packet = 8'b0;
+        tb_expected_rx_data = 8'b0;
+        tb_expected_buff_occ = 7'b0000001;
+
+        send_tx_in(8'b00000100);
+        @(negedge tb_clk); //wait for data to enter buffer
+
+        check_outs(tb_expected_rx_data, tb_expected_tx_packet, tb_expected_buff_occ, tb_test_case_num, tb_test_case, "After writing TX data");
+        take_tx_out();
+        #(CLK_PERIOD);
+        tb_expected_buff_occ = 7'b0;
+        tb_expected_tx_packet = 8'b00000100;
+        check_outs(tb_expected_rx_data, tb_expected_tx_packet, tb_expected_buff_occ, tb_test_case_num, tb_test_case, "After pulling TX data");
+
+        //TEST 4
+        #(CLK_PERIOD);
+        reset_dut();
+        tb_test_case = "Clear and flush";
+        tb_test_case_num += 1;
+        tb_expected_tx_packet = 8'b0;
+        tb_expected_rx_data = 8'b0;
+        tb_expected_buff_occ = 7'b0001000;
+        
+        tb_rx_packet_data = 8'b11111111;
+        @(negedge tb_clk);
+        tb_store_rx_data = 1'b1;
+        #(CLK_PERIOD * 8);
+        tb_store_rx_data = 1'b0;
+        check_outs(tb_expected_rx_data, tb_expected_tx_packet, tb_expected_buff_occ, tb_test_case_num, tb_test_case, "After filling with data");
+        clear_buf();
+        tb_expected_buff_occ = 7'b0000000;
+        #(CLK_PERIOD);
+        check_outs(tb_expected_rx_data, tb_expected_tx_packet, tb_expected_buff_occ, tb_test_case_num, tb_test_case, "After clearing data");
+
+        //TEST 5
+        #(CLK_PERIOD);
+        reset_dut();
+        tb_test_case = "Small size data transfer";
+        tb_test_case_num += 1;
+        tb_expected_tx_packet = 8'b0;
+        tb_expected_rx_data = 8'b0;
+        tb_expected_buff_occ = 7'b0000100;
+
+        send_tx_in(8'b10000001);
+        send_tx_in(8'b00001000);
+        send_tx_in(8'b11100000);
+        send_tx_in(8'b11111111);
+    
+        check_outs(tb_expected_rx_data, tb_expected_tx_packet, tb_expected_buff_occ, tb_test_case_num, tb_test_case, "Writing small packet");
+        @(negedge tb_clk);
+        tb_expected_tx_packet = 8'b11111111;
+        tb_expected_buff_occ = 7'b0;
+        for(i = 0; i < 4; i++)begin
+            take_tx_out;
+        end
+        #(CLK_PERIOD * 2);
+        check_outs(tb_expected_rx_data, tb_expected_tx_packet, tb_expected_buff_occ, tb_test_case_num, tb_test_case, "Reading Small Packet");
+
+        //TEST 6
+        #(CLK_PERIOD);
+        reset_dut();
+        tb_test_case = "Medium size data transfer";
+        tb_test_case_num += 1;
+        tb_expected_tx_packet = 8'b0;
+        tb_expected_rx_data = 8'b0;
+        tb_expected_buff_occ = 7'b0010000;
+        tb_rx_packet_data = 8'b10101010;
+        @(negedge tb_clk);
+        tb_store_rx_data = 1'b1;
+        #(CLK_PERIOD * 16);
+        tb_store_rx_data =1'b0;
+        
+
+        check_outs(tb_expected_rx_data, tb_expected_tx_packet, tb_expected_buff_occ, tb_test_case_num, tb_test_case, "Writing medium packet");
+        @(negedge tb_clk);
+        tb_expected_tx_packet = 8'b10101010;
+        tb_expected_buff_occ = 7'b0;
+        tb_get_tx_data = 1'b1;
+        #(CLK_PERIOD * 16);
+        check_outs(tb_expected_rx_data, tb_expected_tx_packet, tb_expected_buff_occ, tb_test_case_num, tb_test_case, "Reading Medium Packet");
+        tb_get_tx_data = 1'b0;
+
+        //TEST 7
+        #(CLK_PERIOD);
+        reset_dut();
+        tb_test_case = "Max size data transfer";
+        tb_test_case_num += 1;
+        tb_expected_tx_packet = 8'b0;
+        tb_expected_rx_data = 8'b0;
+        tb_expected_buff_occ = 7'b0111100;
+        tb_tx_data = 8'b10010000;
+        @(negedge tb_clk);
+        tb_store_tx_data = 1'b1;
+        #(CLK_PERIOD * 60);
+        tb_store_tx_data = 1'b0;
+
+        check_outs(tb_expected_rx_data, tb_expected_tx_packet, tb_expected_buff_occ, tb_test_case_num, tb_test_case, "Writing max size packet");
+        @(negedge tb_clk);
+        tb_expected_tx_packet = 8'b10010000;
+        tb_expected_buff_occ = 7'b0;
+        tb_get_tx_data = 1'b1;
+        #(CLK_PERIOD * 62); //Needs extra cycles to get to expected
+        check_outs(tb_expected_rx_data, tb_expected_tx_packet, tb_expected_buff_occ, tb_test_case_num, tb_test_case, "Reading max size Packet");
+        tb_get_tx_data = 1'b0;
+
+        //TEST 8
+        #(CLK_PERIOD);
+        reset_dut();
+        tb_test_case = "Simultaneous read and write";
+        tb_test_case_num += 1;
+        tb_expected_tx_packet = 8'b0;
+        tb_expected_rx_data = 8'b11111101;
+        tb_expected_buff_occ = 7'b0000001;
+        tb_rx_packet_data = 8'b11111101;
+        @(negedge tb_clk);
+        send_rx_in(8'b11111101);
+        #(CLK_PERIOD);
+        tb_store_rx_data = 1;
+        tb_get_rx_data = 1;
+        #(CLK_PERIOD * 5);
+        tb_store_rx_data = 0;
+        tb_get_rx_data = 0;
+        check_outs(tb_expected_rx_data, tb_expected_tx_packet, tb_expected_buff_occ, tb_test_case_num, tb_test_case, "After FIFO Processes Reads/Writes");
+        
+        //TEST 9
+        #(CLK_PERIOD);
+        reset_dut();
+        tb_test_case = "Flush while counting";
+        tb_test_case_num += 1;
+        tb_expected_tx_packet = 8'b0;
+        tb_expected_rx_data = 8'b0;
+        tb_expected_buff_occ = 7'b0000000;
+        tb_rx_packet_data = 8'b11111101;
+        @(negedge tb_clk);
+        send_rx_in(8'b11111111);
+        #(CLK_PERIOD * 6);
+        tb_flush = 1'b1;
+        #(CLK_PERIOD);
+        check_outs(tb_expected_rx_data, tb_expected_tx_packet, tb_expected_buff_occ, tb_test_case_num, tb_test_case, "After Flush is asserted");
+        #(CLK_PERIOD * 2);
     end
 endmodule

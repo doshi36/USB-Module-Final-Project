@@ -6,14 +6,14 @@
 // Version:     1.0  Initial Design Entry
 // Description: Finite State Machine for TX module of CDL
 module tx_fsm(input logic clk, input logic n_rst,
-                input logic [1:0] TX_packet, input logic [6:0] buff_occ,
+                input logic [2:0] TX_packet, input logic [6:0] buff_occ,
                 input logic cnt_7bits, input logic shift_en, 
                 output logic TX_Error, output logic TX_Transfer_Active, 
                 output logic Get_TX_Data, output logic timer_en, output logic load_data,
                 output logic [2:0] bit_type);
 
 typedef enum logic [4:0] {IDLE, PRESYNC, SYNC, ACK1, ACK2, NAK1, NAK2, STALL1, STALL2,
-                         DATA1, DATA2, READ_DATA, ERR, HOLD_DATA, PULL_PACKET, EOP, EOP_IDLE} fsm;
+                         DATA1, DATA2, READ_DATA, ERR, HOLD_DATA, LAST_BIT, EOP, EOP_IDLE} fsm;
 fsm state, next_state;
 
 logic [2:0] nbit;
@@ -71,25 +71,25 @@ always_comb begin
         end
         SYNC : begin
             if(cnt_7bits) begin
-                if(TX_packet == 2'b01) begin//ACK path
+                if(TX_packet == 3'b010) begin//ACK path
                     next_state = ACK1;
                     nbit = 3'b010;
                     nout = 4'b0101;
                     ngetdata = 1'b0;
                 end
-                else if(TX_packet == 2'b10) begin //NAK path
+                else if(TX_packet == 3'b011) begin //NAK path
                     next_state = NAK1;
                     nbit = 3'b011;
                     nout = 4'b0101;
                     ngetdata = 1'b0;
                 end
-                else if(TX_packet == 2'b11) begin //STALL path
+                else if(TX_packet == 3'b100) begin //STALL path
                     next_state = STALL1;
                     nout = 4'b0101;
                     nbit = 3'b100;
                     ngetdata = 1'b0;
                 end
-                else if(TX_packet == 2'b00) begin //DATA Path
+                else if(TX_packet == 3'b001) begin //DATA Path
                     next_state = DATA1;
                     nout = 4'b0101;
                     nbit = 3'b101;
@@ -109,24 +109,24 @@ always_comb begin
                 ngetdata = 1'b0;
             end
         end
-        ACK1 : begin
+        ACK1 : begin    //This prepares the machine to load the ACK PID into the shift register         
             if(shift_en) begin
                 next_state = ACK2;
-                nout = 4'b0101;
+                nout = 4'b0111;
                 nbit = 3'b010;
                 ngetdata = 1'b0;
             end else begin
                 next_state = ACK1;
-                nout = 4'b0101;
                 nbit = 3'b010;
+                nout = 4'b0101;
                 ngetdata = 1'b0;
             end
         end
-        ACK2 : begin
+        ACK2 : begin    //Throughputs ACK PID until 8th bit is shifted through, then goes to EOP
             if(cnt_7bits && shift_en) begin
-                next_state = EOP;
+                next_state = LAST_BIT;
                 nout = 4'b0101;
-                nbit = 3'b111;
+                nbit = 3'b010;
                 ngetdata = 1'b0;
             end else begin
                 next_state = ACK2;
@@ -135,24 +135,25 @@ always_comb begin
                 ngetdata = 1'b0;
             end
         end
-        NAK1 : begin
+
+        NAK1 : begin        //Preps for NAK signal 
             if(shift_en) begin
                 next_state = NAK2;
-                nout = 4'b0101;
+                nout = 4'b0111;
                 nbit = 3'b011;
-                ngetdata = 1'b0;
+                ngetdata = 1'b0; 
             end else begin
                 next_state = NAK1;
                 nout = 4'b0101;
                 nbit = 3'b011;
-                ngetdata = 1'b0;
+                ngetdata = 1'b0; 
             end
         end
-        NAK2 : begin
+        NAK2 : begin        //Processing NAK byte 
             if(cnt_7bits && shift_en) begin
-                next_state = EOP;
+                next_state = LAST_BIT;
                 nout = 4'b0101;
-                nbit = 3'b111;
+                nbit = 3'b011;
                 ngetdata = 1'b0;
             end else begin
                 next_state = NAK2;
@@ -161,24 +162,20 @@ always_comb begin
                 ngetdata = 1'b0;
             end
         end
+
         STALL1 : begin
             if(shift_en) begin
                 next_state = STALL2;
-                nout = 4'b0101;
-                nbit = 3'b100;
-                ngetdata = 1'b0;
-            end else begin
-                next_state = STALL1;
-                nout = 4'b0101;
+                nout = 4'b0111;
                 nbit = 3'b100;
                 ngetdata = 1'b0;
             end
         end
         STALL2 : begin
             if(cnt_7bits && shift_en) begin
-                next_state = EOP;
+                next_state = LAST_BIT;
                 nout = 4'b0101;
-                nbit = 3'b111;
+                nbit = 3'b100;
                 ngetdata = 1'b0;
             end else begin
                 next_state = STALL2;
@@ -190,19 +187,14 @@ always_comb begin
         DATA1 : begin
             if(shift_en) begin
                 next_state = DATA2;
-                nout = 4'b0101;
-                nbit = 3'b101;
-                ngetdata = 1'b0;
-            end else begin
-                next_state = DATA1;
-                nout = 4'b0101;
+                nout = 4'b0111;
                 nbit = 3'b101;
                 ngetdata = 1'b0;
             end
         end
         DATA2 : begin
             if(cnt_7bits) begin
-                if(buff_occ == 0) begin //if trying to pull data from empty buffer, throw error
+                if(buff_occ < 2) begin //if trying to pull data field without CRC, throw error
                     next_state = ERR;
                     nout = 4'b1100;
                     nbit = 3'b000;
@@ -232,39 +224,46 @@ always_comb begin
                 next_state = READ_DATA; 
                 nout = 4'b0101;
                 nbit = 3'b110;
-                ngetdata = 1'b1;
+                ngetdata = 1'b0;
             end
-        end
-        HOLD_DATA : begin
+        end 
+        HOLD_DATA : begin   //Reading a byte of data from FIFO
             if(cnt_7bits) begin
                 if(buff_occ != 0) begin
-                    next_state = PULL_PACKET;       //HOLD -> PULL
+                    next_state = READ_DATA;       //HOLD -> READ if data still remains
                     nout = 4'b0101;
-                    nbit = 3'b101;
+                    nbit = 3'b110;
                     ngetdata = 1'b1;
                 end
-                else if((buff_occ == 0) && shift_en) begin  //HOLD -> EOP
-                    next_state = EOP;
+                else if((buff_occ == 0) && shift_en) begin  //HOLD -> EOP when last byte is complete
+                    next_state = LAST_BIT;
                     nout = 4'b0101;
-                    nbit = 3'b111;
+                    nbit = 3'b110;
                     ngetdata = 1'b0;
                 end
             end else begin
-                next_state = HOLD_DATA;    //stay
+                next_state = HOLD_DATA;   
                 nout = 4'b0101;
                 nbit = 3'b110;
                 ngetdata = 1'b0;
             end
         end
-        PULL_PACKET : begin
-            next_state = READ_DATA; 
-            nout = 4'b0101;
-            nbit = 3'b110;
-            ngetdata = 1'b1;
+        LAST_BIT : begin
+            if(shift_en) begin
+                next_state = EOP;
+                nout = 4'b0101;
+                nbit = 3'b111;
+                ngetdata = 1'b0;
+            end else begin
+                next_state = LAST_BIT;
+                nout = 4'b0101;
+                nbit = bit_type;
+                ngetdata = 1'b0;
+            end
         end
         EOP : begin
-            if(shift_en) begin
-                next_state = EOP_IDLE;
+            if(shift_en) begin    
+                next_state = EOP_IDLE;      //EOP must be active for two bit periods
                 nout = 4'b0101;
                 nbit = 3'b111;
                 ngetdata = 1'b0;

@@ -34,7 +34,7 @@ always_comb begin
     else if(get_tx_data || get_rx_data) begin
         if(buff_occ != 0) begin
             next_en = 1'b1;
-            next_ptr = read_ptr - 1;
+            next_ptr = read_ptr + 1;
         end else begin
             next_en= 1'b0;
             next_ptr = read_ptr;
