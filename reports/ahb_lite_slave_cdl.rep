@@ -1,0 +1,101 @@
+Information: Updating design information... (UID-85)
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : ahb_lite_slave_cdl
+Version: K-2015.06-SP1
+Date   : Fri Dec  8 10:47:23 2023
+****************************************
+
+Operating Conditions: typical   Library: osu05_stdcells
+Wire Load Model Mode: top
+
+  Startpoint: hready_reg (rising edge-triggered flip-flop)
+  Endpoint: hready (output port)
+  Path Group: (none)
+  Path Type: max
+
+  Point                                    Incr       Path
+  -----------------------------------------------------------
+  hready_reg/CLK (DFFSR)                   0.00       0.00 r
+  hready_reg/Q (DFFSR)                     0.64       0.64 f
+  hready (out)                             0.00       0.64 f
+  data arrival time                                   0.64
+  -----------------------------------------------------------
+  (Path is unconstrained)
+
+
+1
+ 
+****************************************
+Report : area
+Design : ahb_lite_slave_cdl
+Version: K-2015.06-SP1
+Date   : Fri Dec  8 10:47:23 2023
+****************************************
+
+Library(s) Used:
+
+    osu05_stdcells (File: /package/eda/cells/OSU/v2.7/synopsys/lib/ami05/osu05_stdcells.db)
+
+Number of ports:                          116
+Number of nets:                           660
+Number of cells:                          593
+Number of combinational cells:            469
+Number of sequential cells:               124
+Number of macros/black boxes:               0
+Number of buf/inv:                        124
+Number of references:                      16
+
+Combinational area:             110907.000000
+Buf/Inv area:                    17928.000000
+Noncombinational area:           98640.000000
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (No wire load specified)
+
+Total cell area:                209547.000000
+Total area:                 undefined
+1
+Loading db file '/package/eda/cells/OSU/v2.7/synopsys/lib/ami05/osu05_stdcells.db'
+Information: Propagating switching activity (low effort zero delay simulation). (PWR-6)
+Warning: There is no defined clock in the design. (PWR-80)
+Warning: Design has unannotated primary inputs. (PWR-414)
+Warning: Design has unannotated sequential cell outputs. (PWR-415)
+ 
+****************************************
+Report : power
+        -hier
+        -analysis_effort low
+Design : ahb_lite_slave_cdl
+Version: K-2015.06-SP1
+Date   : Fri Dec  8 10:47:23 2023
+****************************************
+
+
+Library(s) Used:
+
+    osu05_stdcells (File: /package/eda/cells/OSU/v2.7/synopsys/lib/ami05/osu05_stdcells.db)
+
+
+Operating Conditions: typical   Library: osu05_stdcells
+Wire Load Model Mode: top
+
+
+Global Operating Voltage = 5    
+Power-specific unit information :
+    Voltage Units = 1V
+    Capacitance Units = 1.000000pf
+    Time Units = 1ns
+    Dynamic Power Units = 1mW    (derived from V,C,T units)
+    Leakage Power Units = 1nW
+
+
+--------------------------------------------------------------------------------
+                                       Switch   Int      Leak     Total
+Hierarchy                              Power    Power    Power    Power    %
+--------------------------------------------------------------------------------
+ahb_lite_slave_cdl                       14.717   19.282   63.871   34.000 100.0
+1

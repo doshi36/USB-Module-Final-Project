@@ -1,0 +1,90 @@
+# //  Questa Sim
+# //  Version 10.7a linux Mar 26 2018
+# //
+# //  Copyright 1991-2018 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  QuestaSim and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# vsim -Lf /home/ecegrid/a/ece337/Course_Prod/IP_Libs/Lab_IP_Lib/Vsim -L /home/ecegrid/a/ece337/Course_Prod/Cell_Libs/AMI_05/vhdl_work -L /home/ecegrid/a/ece337/Class0.5u/GOLD_LIB "+no_glitch_msg" -coverage -voptargs="+acc" -suppress 12110 -i -t ps mapped_work.tb_ahb_lite_slave_cdl 
+# Start time: 12:41:54 on Dec 08,2023
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# Loading sv_std.std
+# Loading work.tb_ahb_lite_slave_cdl(fast)
+# Loading /home/ecegrid/a/ece337/Course_Prod/IP_Libs/Lab_IP_Lib/Vsim.ahb_lite_bus_cdl(fast)
+# Loading work.ahb_lite_slave_cdl(fast)
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.math_real(body)
+# Loading /home/ecegrid/a/ece337/Course_Prod/Cell_Libs/AMI_05/vhdl_work.dffsr(metastabilitywrapperarch)#1
+# Loading ieee.vital_timing(body)
+# Loading ieee.vital_primitives(body)
+# Loading /home/ecegrid/a/ece337/Course_Prod/Cell_Libs/AMI_05/vhdl_work.prim(body)
+# Loading /home/ecegrid/a/ece337/Course_Prod/Cell_Libs/AMI_05/vhdl_work.dffsr_core(behavioral)#1
+# Loading /home/ecegrid/a/ece337/Course_Prod/Cell_Libs/AMI_05/vhdl_work.dffposx1(metastabilitywrapperarch)#1
+# Loading /home/ecegrid/a/ece337/Course_Prod/Cell_Libs/AMI_05/vhdl_work.dffposx1_core(behavioral)#1
+# Loading /home/ecegrid/a/ece337/Course_Prod/Cell_Libs/AMI_05/vhdl_work.invx2(behavioral)#1
+# Loading /home/ecegrid/a/ece337/Course_Prod/Cell_Libs/AMI_05/vhdl_work.invx4(behavioral)#1
+# Loading /home/ecegrid/a/ece337/Course_Prod/Cell_Libs/AMI_05/vhdl_work.nand2x1(behavioral)#1
+# Loading /home/ecegrid/a/ece337/Course_Prod/Cell_Libs/AMI_05/vhdl_work.aoi21x1(behavioral)#1
+# Loading /home/ecegrid/a/ece337/Course_Prod/Cell_Libs/AMI_05/vhdl_work.aoi22x1(behavioral)#1
+# Loading /home/ecegrid/a/ece337/Course_Prod/Cell_Libs/AMI_05/vhdl_work.nand3x1(behavioral)#1
+# Loading /home/ecegrid/a/ece337/Course_Prod/Cell_Libs/AMI_05/vhdl_work.oai21x1(behavioral)#1
+# Loading /home/ecegrid/a/ece337/Course_Prod/Cell_Libs/AMI_05/vhdl_work.oai22x1(behavioral)#1
+# Loading /home/ecegrid/a/ece337/Course_Prod/Cell_Libs/AMI_05/vhdl_work.nor2x1(behavioral)#1
+# Loading /home/ecegrid/a/ece337/Course_Prod/Cell_Libs/AMI_05/vhdl_work.and2x1(behavioral)#1
+# Loading /home/ecegrid/a/ece337/Course_Prod/Cell_Libs/AMI_05/vhdl_work.or2x1(behavioral)#1
+# Loading /home/ecegrid/a/ece337/Course_Prod/Cell_Libs/AMI_05/vhdl_work.invx1(behavioral)#1
+# Loading /home/ecegrid/a/ece337/Course_Prod/Cell_Libs/AMI_05/vhdl_work.mux2x1(behavioral)#1
+# Loading /home/ecegrid/a/ece337/Course_Prod/Cell_Libs/AMI_05/vhdl_work.xnor2x1(behavioral)#1
+source wave.do
+run -a
+# ** Warning: DFFPOSX1 instance grabbed an invalid value and is propagating a metastable value
+#    Time: 5310 ps  Iteration: 0  Instance: /tb_ahb_lite_slave_cdl/TM/\write_select_reg[3] 
+# ** Warning: DFFPOSX1 instance grabbed an invalid value and is propagating a metastable value
+#    Time: 5310 ps  Iteration: 0  Instance: /tb_ahb_lite_slave_cdl/TM/\write_select_reg[2] 
+# ** Warning: DFFPOSX1 instance grabbed an invalid value and is propagating a metastable value
+#    Time: 5310 ps  Iteration: 0  Instance: /tb_ahb_lite_slave_cdl/TM/\write_select_reg[1] 
+# ** Warning: DFFPOSX1 instance grabbed an invalid value and is propagating a metastable value
+#    Time: 5310 ps  Iteration: 0  Instance: /tb_ahb_lite_slave_cdl/TM/\write_select_reg[0] 
+# ** Warning: DFFPOSX1 instance grabbed an invalid value and is propagating a metastable value
+#    Time: 5310 ps  Iteration: 0  Instance: /tb_ahb_lite_slave_cdl/TM/store_tx_data_reg
+# ** Warning: DFFPOSX1 instance grabbed an invalid value and is propagating a metastable value
+#    Time: 5310 ps  Iteration: 0  Instance: /tb_ahb_lite_slave_cdl/TM/get_rx_data_reg
+# ** Warning: DFFPOSX1 instance metastable output value decayed to a '1' value
+#    Time: 5450 ps  Iteration: 0  Instance: /tb_ahb_lite_slave_cdl/TM/\write_select_reg[3] 
+# ** Warning: DFFPOSX1 instance metastable output value decayed to a '1' value
+#    Time: 5450 ps  Iteration: 0  Instance: /tb_ahb_lite_slave_cdl/TM/\write_select_reg[2] 
+# ** Warning: DFFPOSX1 instance metastable output value decayed to a '1' value
+#    Time: 5450 ps  Iteration: 0  Instance: /tb_ahb_lite_slave_cdl/TM/\write_select_reg[1] 
+# ** Warning: DFFPOSX1 instance metastable output value decayed to a '1' value
+#    Time: 5450 ps  Iteration: 0  Instance: /tb_ahb_lite_slave_cdl/TM/\write_select_reg[0] 
+# ** Warning: DFFPOSX1 instance metastable output value decayed to a '1' value
+#    Time: 5450 ps  Iteration: 0  Instance: /tb_ahb_lite_slave_cdl/TM/store_tx_data_reg
+# ** Warning: DFFPOSX1 instance metastable output value decayed to a '1' value
+#    Time: 5450 ps  Iteration: 0  Instance: /tb_ahb_lite_slave_cdl/TM/get_rx_data_reg
+# ** Error: Incorrect 'hrdata' response from slave device during data phase of transaction (transaction 0)
+#    Time: 610 ns  Scope: tb_ahb_lite_slave_cdl.BFM File: /home/ecegrid/a/ece337/Course_Prod/IP_Libs/Lab_IP_Lib/Source/ahb_lite_bus_cdl.sv Line: 292
+# ** Error: Incorrect 'hrdata' response from slave device during data phase of transaction (transaction 2)
+#    Time: 810 ns  Scope: tb_ahb_lite_slave_cdl.BFM File: /home/ecegrid/a/ece337/Course_Prod/IP_Libs/Lab_IP_Lib/Source/ahb_lite_bus_cdl.sv Line: 292
+# ** Error: Incorrect 'hrdata' response from slave device during data phase of transaction (transaction 6)
+#    Time: 970 ns  Scope: tb_ahb_lite_slave_cdl.BFM File: /home/ecegrid/a/ece337/Course_Prod/IP_Libs/Lab_IP_Lib/Source/ahb_lite_bus_cdl.sv Line: 292
+# ** Error: Incorrect 'hresp' response from slave device during address phase of transaction (transaction 10)
+#    Time: 1210 ns  Scope: tb_ahb_lite_slave_cdl.BFM File: /home/ecegrid/a/ece337/Course_Prod/IP_Libs/Lab_IP_Lib/Source/ahb_lite_bus_cdl.sv Line: 273
+# ** Error: Incorrect 'hready' response from slave device during address phase of transaction (transaction 10)
+#    Time: 1210 ns  Scope: tb_ahb_lite_slave_cdl.BFM File: /home/ecegrid/a/ece337/Course_Prod/IP_Libs/Lab_IP_Lib/Source/ahb_lite_bus_cdl.sv Line: 280
+# ** Error: Incorrect 'hrdata' response from slave device during data phase of transaction (transaction 9)
+#    Time: 1210 ns  Scope: tb_ahb_lite_slave_cdl.BFM File: /home/ecegrid/a/ece337/Course_Prod/IP_Libs/Lab_IP_Lib/Source/ahb_lite_bus_cdl.sv Line: 292
+# ** Note: $stop    : source/tb_ahb_lite_slave_cdl.sv(502)
+#    Time: 1280 ns  Iteration: 1  Instance: /tb_ahb_lite_slave_cdl
+# Break in Module tb_ahb_lite_slave_cdl at source/tb_ahb_lite_slave_cdl.sv line 502
+# Causality operation skipped due to absence of debug database file
+# End time: 17:47:53 on Dec 08,2023, Elapsed time: 5:05:59
+# Errors: 6, Warnings: 13

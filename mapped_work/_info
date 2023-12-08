@@ -1,0 +1,67 @@
+m255
+K4
+z2
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 d/home/ecegrid/a/mg103/ece337/cdl
+T_opt
+!s110 1702057314
+V_WRON:FkhQOM6K[mGn3Io1
+04 21 4 work tb_ahb_lite_slave_cdl fast 0
+=1-ec2a720a9f52-65735562-52bc4-13abd
+o-quiet -auto_acc_if_foreign -work mapped_work -L /home/ecegrid/a/ece337/Course_Prod/Cell_Libs/AMI_05/vhdl_work -L /home/ecegrid/a/ece337/Class0.5u/GOLD_LIB -Lf /home/ecegrid/a/ece337/Course_Prod/IP_Libs/Lab_IP_Lib/Vsim -suppress 12110 +acc
+tCvgOpt 0
+n@_opt
+OE;O;10.7a;67
+vahb_lite_slave_cdl
+Z1 DXx6 sv_std 3 std 0 22 >9az<^>2ff9DAl3OFGaAf1
+!s110 1702050444
+!i10b 1
+!s100 PbSd8Q8C5?H_iLL?WkX=P2
+Ib]6KO=KVZW2b0I==mo08J3
+Z2 VDg1SIo80bB@j0V0VzS_@n1
+!s105 ahb_lite_slave_cdl_v_unit
+S1
+R0
+w1702050443
+8mapped/ahb_lite_slave_cdl.v
+Fmapped/ahb_lite_slave_cdl.v
+L0 8
+Z3 OE;L;10.7a;67
+r1
+!s85 0
+31
+!s108 1702050444.000000
+!s107 mapped/ahb_lite_slave_cdl.v|
+!s90 -sv|-work|mapped_work|mapped/ahb_lite_slave_cdl.v|
+!i113 0
+Z4 o-sv -work mapped_work
+Z5 tCoverage 63 CoverExcludeDefault 1 CoverOpt 1 CoverShortCircuit 0 CvgOpt 0
+vtb_ahb_lite_slave_cdl
+R1
+!s110 1702057310
+!i10b 1
+!s100 Ocd??c0=iOUU9RJYHdQ741
+IG`hXCWm@bYhOH:<h>RbQE0
+R2
+!s105 tb_ahb_lite_slave_cdl_sv_unit
+S1
+R0
+w1702057304
+8source/tb_ahb_lite_slave_cdl.sv
+Fsource/tb_ahb_lite_slave_cdl.sv
+L0 3
+R3
+r1
+!s85 0
+31
+!s108 1702057310.000000
+!s107 source/tb_ahb_lite_slave_cdl.sv|
+!s90 -sv|-work|mapped_work|source/tb_ahb_lite_slave_cdl.sv|
+!i113 0
+R4
+R5
