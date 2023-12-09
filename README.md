@@ -13,7 +13,7 @@ A guide to the project files for the cooperative design lab in ECE33700.
 
 All files for this project can be found in
 ```
-  ~mg103/ece337/cdl
+  ~mg121/ece337/cdl
 ```
 #### Source/
 - ahb_lite_slave_cdl.sv - top level code for AHB_Lite 
