@@ -44,4 +44,5 @@ All files for this project can be found in
 #### Reports/
 - ahb_lite_slave_cdl.log - synthesis report file for AHB_Lite design
 - rcv_usb.rep - synthesis report file for USB RX
+- rcv_usb.do - waveform for USB RX
 
